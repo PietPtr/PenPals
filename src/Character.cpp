@@ -180,7 +180,9 @@ void Character::draw(RenderWindow* window, Time dt, Animation* anRun, Animation*
     }
 }
 
-void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation* anuAtk, Animation* anHit, Animation* anDie)
+void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation* anuAtk, Animation* anHit, Animation* anDie, Input input, Input input2)
+//input1 for space and return
+//input2 for WASD
 {
     totalTime += dt;
 
@@ -189,30 +191,30 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
     case(STATE_STANDING):
         graphicState = STATE_STANDING;
 
-        if (Keyboard::isKeyPressed(Keyboard::A))
+        if (input2 == INPUT_A)
         {
             state = STATE_WALKING_LEFT;
             graphicState = STATE_WALKING_LEFT;
         }
-        if (Keyboard::isKeyPressed(Keyboard::D))
+        if (input2 == INPUT_D)
         {
             state = STATE_WALKING_RIGHT;
             graphicState = STATE_WALKING_RIGHT;
         }
-        if (Keyboard::isKeyPressed(Keyboard::S))
+        if (input2 == INPUT_S)
         {
             state = STATE_CROUCHING;
             graphicState = STATE_CROUCHING;
         }
-        if (Keyboard::isKeyPressed(Keyboard::Space))
+        if (input == INPUT_SPACE)
         {
             state = STATE_JUMPING;
             graphicState = STATE_JUMPING;
         }
 
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed)
+        if (input == INPUT_ENTER)
             state = STATE_NEUTRALATTACK;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed && Keyboard::isKeyPressed(Keyboard::W))
+        if (input == INPUT_ENTER && input2 == INPUT_W)
             state = STATE_UPATTACK;
 
         hitbox = IntRect(-100, -100, 0, 0);
@@ -220,33 +222,33 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
         velocity.x = 0;
         break;
     case(STATE_WALKING_LEFT):
-        if (!Keyboard::isKeyPressed(Keyboard::A))
-            state = STATE_STANDING;
         velocity.x = -10;
+        if (input2 != INPUT_A)
+            state = STATE_STANDING;
         flip = true;
-        if (Keyboard::isKeyPressed(Keyboard::Space))
+        if (input == INPUT_SPACE)
             state = STATE_JUMPING;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed)
+        if (input == INPUT_ENTER)
             state = STATE_NEUTRALATTACK;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed && Keyboard::isKeyPressed(Keyboard::W))
+        if (input == INPUT_ENTER && input2 == INPUT_W)
             state = STATE_UPATTACK;
         break;
     case(STATE_WALKING_RIGHT):
-        if (!Keyboard::isKeyPressed(Keyboard::D))
-            state = STATE_STANDING;
         velocity.x = 10;
+        if (input2 != INPUT_D)
+            state = STATE_STANDING;
         flip = false;
-        if (Keyboard::isKeyPressed(Keyboard::Space))
+        if (input == INPUT_SPACE)
             state = STATE_JUMPING;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed)
+        if (input == INPUT_ENTER)
             state = STATE_NEUTRALATTACK;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed && Keyboard::isKeyPressed(Keyboard::W))
+        if (input == INPUT_ENTER && input2 == INPUT_W)
             state = STATE_UPATTACK;
         break;
     case(STATE_CROUCHING):
-        if (!Keyboard::isKeyPressed(Keyboard::S))
+        if (input2 != INPUT_S)
             state = STATE_STANDING;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed)
+        if (input = INPUT_ENTER)
             state = STATE_DOWNATTACK;
         break;
     case(STATE_JUMPING):
@@ -258,21 +260,21 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
             state = STATE_STANDING;
 
         //flip = false;
-        if (Keyboard::isKeyPressed(Keyboard::D))
+        if (input2 == INPUT_D)
             velocity.x = 10;
-        else if (!Keyboard::isKeyPressed(Keyboard::D) && velocity.x > 0)
+        else if (input2 != INPUT_D && velocity.x > 0)
             velocity.x--;
 
-        if (Keyboard::isKeyPressed(Keyboard::A))
+        if (input2 == INPUT_A)
             velocity.x = -10;
-        else if (!Keyboard::isKeyPressed(Keyboard::A) && velocity.x < 0)
+        else if (input2 != INPUT_A && velocity.x < 0)
             velocity.x++;
 
         if (velocity.y >= 0)
             graphicState = STATE_FALLING;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed)
+        if (input == INPUT_ENTER)
             state = STATE_NEUTRALATTACK;
-        if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed && Keyboard::isKeyPressed(Keyboard::W))
+        if (input == INPUT_ENTER && input2 == INPUT_W)
         {
             state = STATE_UPATTACK;
         }
@@ -359,8 +361,6 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
 
     position.x += velocity.x * speed * dt.asSeconds();
     position.y += velocity.y * speed * dt.asSeconds();
-
-    wasEnterPressed = Keyboard::isKeyPressed(Keyboard::Return);
 
     //std::cout << state << "\n";
 }

@@ -33,6 +33,17 @@ enum Weapon
     WEAPON_WINDMILL  //
 };
 
+enum Input
+{
+    INPUT_NONE,
+    INPUT_W,
+    INPUT_A,
+    INPUT_S,
+    INPUT_D,
+    INPUT_SPACE,
+    INPUT_ENTER
+};
+
 class Character
 {
     public:
@@ -40,7 +51,7 @@ class Character
         void draw(RenderWindow* window, Time dt, Animation* anRun, Animation* anIdle, Animation* anCrouch, Animation* anJump,
                                                  Animation* anFall, Animation* annAtk, Animation* andAtk, Animation* anuAtk,
                                                  Animation* anHit, Animation* anDie);
-        void update(Time dt, Animation* annAtk, Animation* andAtk, Animation* anuAtk, Animation* anHit, Animation* anDie);
+        void update(Time dt, Animation* annAtk, Animation* andAtk, Animation* anuAtk, Animation* anHit, Animation* anDie, Input input, Input input2);
         void drawWeapon(RenderWindow* window, Vector2f weaponPos, Vector2f weaponFlipPos, float weaponRotation);
         void AIupdate(Time dt, Animation* annAtkEn, Animation* andAtkEn, Animation* anuAtkEn, Animation* anHitEn, Animation* anDieEn);
         int getHealth() { return health; }

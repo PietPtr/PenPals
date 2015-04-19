@@ -11,6 +11,7 @@ int randint(int low, int high);
 int randint(int low, int high, int seed);
 void drawString(RenderWindow* window, std::string text, Vector2f position, Texture* fontTexture);
 void drawFloat(RenderWindow* window, float num, Vector2f position, Texture* fontTexture);
+void AI(Character* enemy, Character* player, Time dt, Animation* annAtkEn, Animation* andAtkEn, Animation* anuAtkEn, Animation* anHitEn, Animation* anDieEn);
 
 using namespace sf;
 int main()
@@ -219,8 +220,25 @@ int main()
         }
         if (gamestate == 2)
         {
-            player.update(dt, &annAtk, &andAtk, &anuAtk, &anHit, &anDie);
-            enemy.AIupdate(dt, &annAtkEn, &andAtkEn, &anuAtkEn, &anHitEn, &anDieEn);
+            Input input1 = INPUT_NONE;
+            Input input2 = INPUT_NONE;
+
+            if (Keyboard::isKeyPressed(Keyboard::W))
+                input2 = INPUT_W;
+            if (Keyboard::isKeyPressed(Keyboard::A))
+                input2 = INPUT_A;
+            if (Keyboard::isKeyPressed(Keyboard::S))
+                input2 = INPUT_S;
+            if (Keyboard::isKeyPressed(Keyboard::D))
+                input2 = INPUT_D;
+            if (Keyboard::isKeyPressed(Keyboard::Return))
+                input1 = INPUT_ENTER;
+            if (Keyboard::isKeyPressed(Keyboard::Space))
+                input1 = INPUT_SPACE;
+
+            player.update(dt, &annAtk, &andAtk, &anuAtk, &anHit, &anDie, input1, input2);
+            AI(&enemy, &player, dt, &annAtkEn, &andAtkEn, &anuAtkEn, &anHitEn, &anDieEn);
+
             player.checkHit(enemy.getHitbox(), enemy.getStrength());
             enemy.checkHit(player.getHitbox(), player.getStrength());
 
@@ -238,8 +256,24 @@ int main()
         }
         if (gamestate == 3)
         {
-            player.update(dt, &annAtk, &andAtk, &anuAtk, &anHit, &anDie);
-            enemy.AIupdate(dt, &annAtkEn, &andAtkEn, &anuAtkEn, &anHitEn, &anDieEn);
+            Input input1 = INPUT_NONE;
+            Input input2 = INPUT_NONE;
+
+            if (Keyboard::isKeyPressed(Keyboard::W))
+                input2 = INPUT_W;
+            if (Keyboard::isKeyPressed(Keyboard::A))
+                input2 = INPUT_A;
+            if (Keyboard::isKeyPressed(Keyboard::S))
+                input2 = INPUT_S;
+            if (Keyboard::isKeyPressed(Keyboard::D))
+                input2 = INPUT_D;
+            if (Keyboard::isKeyPressed(Keyboard::Return))
+                input1 = INPUT_ENTER;
+            if (Keyboard::isKeyPressed(Keyboard::Space))
+                input1 = INPUT_SPACE;
+
+            player.update(dt, &annAtk, &andAtk, &anuAtk, &anHit, &anDie, input1, input2);
+            AI(&enemy, &player, dt, &annAtkEn, &andAtkEn, &anuAtkEn, &anHitEn, &anDieEn);
 
             if (!(Keyboard::isKeyPressed(Keyboard::Y)) && wasYPressed)
             {
@@ -322,23 +356,25 @@ int main()
         }
 
 
-        //DEBUG DRAWING
+        //__   __  _        __  __  .  _     __
+        // | \ |__ |_) |  | /   /    | | \ | /
+        // |_/ |__ |_) |__| \_] \_]  | |  \| \_]
         //drawFloat(&window, gamestate, Vector2f(10, 260), &font);
-        /*W
-        drawFloat(&window, enemy.getHealth(), Vector2f(10, 190), &font);
-        drawFloat(&window, enemy.getMaxHealth(), Vector2f(10, 260), &font);
-        drawFloat(&window, (float)enemy.getHealth() / enemy.getMaxHealth() * 530, Vector2f(10, 310), &font);
 
-        CircleShape circ(5);
-        circ.setPosition(enemy.getPosition());
-        circ.setFillColor(Color::Red);
-        window.draw(circ);
+        //drawFloat(&window, enemy.getHealth(), Vector2f(10, 190), &font);
+        //drawFloat(&window, enemy.getMaxHealth(), Vector2f(10, 260), &font);
+        //drawFloat(&window, (float)enemy.getHealth() / enemy.getMaxHealth() * 530, Vector2f(10, 310), &font);
+        //(&window, player.getState(), Vector2f(0, 200), &font);
 
-        RectangleShape rect(Vector2f(player.getHitbox().width, player.getHitbox().height));
-        rect.setFillColor(Color(255, 200, 0, 65));
-        rect.setPosition(Vector2f(player.getHitbox().left, player.getHitbox().top));
-        window.draw(rect);
-        //*/
+        //CircleShape circ(5);
+        //circ.setPosition(enemy.getPosition());
+        //circ.setFillColor(Color::Red);
+        //window.draw(circ);
+
+        //RectangleShape rect(Vector2f(player.getHitbox().width, player.getHitbox().height));
+        //rect.setFillColor(Color(255, 200, 0, 65));
+        //rect.setPosition(Vector2f(player.getHitbox().left, player.getHitbox().top));
+        //window.draw(rect);
 
         window.display();
 
@@ -419,4 +455,14 @@ void drawFloat(RenderWindow* window, float num, Vector2f position, Texture* font
     numStr = convert.str();
 
     drawString(window, numStr, position, fontTexture);
+}
+
+void AI(Character* enemy, Character* player, Time dt, Animation* annAtkEn, Animation* andAtkEn, Animation* anuAtkEn, Animation* anHitEn, Animation* anDieEn)
+{
+    Input input1 = INPUT_NONE; //WASD
+    Input input2 = INPUT_NONE; //Space Enter
+
+    //[insert AI here]
+
+    enemy->update(dt, annAtkEn, andAtkEn, anuAtkEn, anHitEn, anDieEn, input1, input2);
 }
