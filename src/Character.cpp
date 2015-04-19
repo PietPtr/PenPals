@@ -11,6 +11,7 @@ using namespace sf;
 
 int FLOOR = 663;
 
+//1,134,000,000 different characters!
 Character::Character(std::string name, Texture* _weaponTexture, Texture* dyingTexture, Vector2f _position)
 {
     state = STATE_STANDING;
@@ -19,14 +20,18 @@ Character::Character(std::string name, Texture* _weaponTexture, Texture* dyingTe
     int seed = 0;
     for (int i = 0; i < name.length(); i++)
     {
-        if ((int)(name[i]) != 13)
-        {
-            if (i % 5 == 0)
-                seed *= (int)(name[i]);
-            else
-                seed += (int)(name[i]);
-            std::cout << "char: " << (int)(name[i]) << "\n";
-        }
+        int value = (int)(name[i]);
+
+        if (((int)(name[i]) == 13 || (int)(name[i]) == 8) && i % 5 == 0)
+            value = 1;
+        else if (((int)(name[i]) == 13 || (int)(name[i]) == 8) && i % 5 != 0)
+            value = 0;
+
+        if (i % 5 == 0)
+            seed *= value;
+        else
+            seed += value;
+        std::cout << "char: " << value << "\n";
     }
     std::cout << "seed:" << seed << "\n---------------------------------------------\n";
 
