@@ -19,9 +19,16 @@ Character::Character(std::string name, Texture* _weaponTexture, Texture* dyingTe
     int seed = 0;
     for (int i = 0; i < name.length(); i++)
     {
-        seed += (int)(name[i]);
+        if ((int)(name[i]) != 13)
+        {
+            if (i % 5 == 0)
+                seed *= (int)(name[i]);
+            else
+                seed += (int)(name[i]);
+            std::cout << "char: " << (int)(name[i]) << "\n";
+        }
     }
-    std::cout << "seed:" << seed << "\n";
+    std::cout << "seed:" << seed << "\n---------------------------------------------\n";
 
     health = randint(75, 125, seed);
     maxHealth = health;
