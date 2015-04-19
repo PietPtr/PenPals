@@ -44,6 +44,12 @@ enum Input
     INPUT_ENTER
 };
 
+enum Direction
+{
+    RIGHT,
+    LEFT
+};
+
 class Character
 {
     public:
@@ -64,6 +70,7 @@ class Character
         void setPosition(Vector2f val) { position = val; }
         IntRect getHitbox() { return hitbox; }
         bool checkHit(IntRect hitbox, int enemyStrength);
+        bool getFlip() { return flip; }
         State getState() { return state; }
     protected:
     private:

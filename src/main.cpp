@@ -1,9 +1,9 @@
 //Presenting... "Pen Pals"!
-
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
 #include <sstream>
+#include <cmath>
 #include "Animation.h"
 #include "Character.h"
 
@@ -124,7 +124,7 @@ int main()
     Animation andAtk(&dAtkTexture, 4, 350, milliseconds(100), true);      //100
     Animation anuAtk(&uAtkTexture, 4, 400, milliseconds(89), true);       //89
     Animation anHit(&hitTexture, 5, 300, milliseconds(100), true);        //100
-    Animation anDie(&dyingTexture, 3, 475, milliseconds(350), false);
+    Animation anDie(&dyingTexture, 3, 475, milliseconds(350), false);     //350
 
     Animation anRunEn(&runEnemyTexture, 6, 249, milliseconds(60), true);         //60
     Animation anIdleEn(&idleEnemyTexture, 2, 250, milliseconds(320), true);      //300
@@ -135,7 +135,7 @@ int main()
     Animation andAtkEn(&dAtkEnemyTexture, 4, 350, milliseconds(100), true);      //100
     Animation anuAtkEn(&uAtkEnemyTexture, 4, 400, milliseconds(89), true);       //89
     Animation anHitEn(&hitEnemyTexture, 5, 300, milliseconds(100), true);        //100
-    Animation anDieEn(&dyingEnemyTexture, 3, 475, milliseconds(350), false);
+    Animation anDieEn(&dyingEnemyTexture, 3, 475, milliseconds(350), false);     //350
 
     Character player("", &weaponTexture, &dyingEnemyTexture, Vector2f(0, 0));
     Character enemy(randint(0, 9) + "number" + randint(0, 9) + randint(0, 9) + randint(0, 9), &weaponTexture, &dyingEnemyTexture, Vector2f(1000, 500));;
@@ -151,7 +151,9 @@ int main()
 
     std::string enteredText;
 
+    bool focus = true;
     bool wasEnterPressed = false;
+    bool wasBackspacePressed = false;
     bool wasYPressed = false;
     bool wasNPressed = false;
     int result = -1;    //-1: nothing
@@ -179,7 +181,7 @@ int main()
                 {
                     if (event.text.unicode == '\b' && enteredText.size() > 0)
                         enteredText.erase(enteredText.size() - 1, 1);
-                    else if (event.text.unicode < 128 && enteredText.length() <= 455)
+                    else if (event.text.unicode < 128 && enteredText.length() <= 417)
                     {
                         enteredText += static_cast<char>(event.text.unicode);
                     }
@@ -187,6 +189,11 @@ int main()
                         enteredText += '&';
                 }
             }
+            if (event.type == sf::Event::LostFocus)
+                focus = false;
+
+            if (event.type == sf::Event::GainedFocus)
+                focus = true;
         }
 
         //       _  __       ___  __
@@ -194,19 +201,18 @@ int main()
         // |__| |   |_/ /--\  |  |__
         dt = clock.restart();
         totalTime += dt;
-        if (gamestate == 0)
+        if (gamestate == 0 && focus)
         {
             if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed)
             {
                 enemy = Character(randint(0, 9) + "number" + randint(0, 9) + randint(0, 9) + randint(0, 9), &weaponTexture, &dyingEnemyTexture, Vector2f(1000, 500));;
                 player = Character(enteredText, &weaponTexture, &dyingTexture, Vector2f(250, 500));
-                std::cout << enteredText << "\n";
                 gamestate = 1;
             }
 
             wasEnterPressed = Keyboard::isKeyPressed(Keyboard::Return);
         }
-        if (gamestate == 1)
+        if (gamestate == 1 && focus)
         {
             player.setPosition(Vector2f(1100, 372));
 
@@ -215,25 +221,32 @@ int main()
                 player.setPosition(Vector2f(250, 500));
                 gamestate = 2;
             }
+            if (!(Keyboard::isKeyPressed(Keyboard::BackSpace)) && wasBackspacePressed)
+            {
+                gamestate = 0;
+            }
 
+            wasBackspacePressed = Keyboard::isKeyPressed(Keyboard::BackSpace);
             wasEnterPressed = Keyboard::isKeyPressed(Keyboard::Return);
         }
-        if (gamestate == 2)
+        if (gamestate == 2 && focus)
         {
             Input input1 = INPUT_NONE;
             Input input2 = INPUT_NONE;
 
-            if (Keyboard::isKeyPressed(Keyboard::W))
+            int deadZone = 40;
+
+            if (Keyboard::isKeyPressed(Keyboard::W) || Joystick::getAxisPosition(0, Joystick::Y) < -deadZone || Joystick::getAxisPosition(0, Joystick::Z) < -deadZone)
                 input2 = INPUT_W;
-            if (Keyboard::isKeyPressed(Keyboard::A))
-                input2 = INPUT_A;
-            if (Keyboard::isKeyPressed(Keyboard::S))
+            if (Keyboard::isKeyPressed(Keyboard::S) || Joystick::getAxisPosition(0, Joystick::Y) > deadZone)
                 input2 = INPUT_S;
-            if (Keyboard::isKeyPressed(Keyboard::D))
+            if (Keyboard::isKeyPressed(Keyboard::A) || Joystick::getAxisPosition(0, Joystick::X) < -deadZone)
+                input2 = INPUT_A;
+            if (Keyboard::isKeyPressed(Keyboard::D) || Joystick::getAxisPosition(0, Joystick::X) > deadZone)
                 input2 = INPUT_D;
-            if (Keyboard::isKeyPressed(Keyboard::Return))
+            if ((!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed) || Joystick::isButtonPressed(0, 0))
                 input1 = INPUT_ENTER;
-            if (Keyboard::isKeyPressed(Keyboard::Space))
+            if (Keyboard::isKeyPressed(Keyboard::Space) || Joystick::isButtonPressed(0, 1))
                 input1 = INPUT_SPACE;
 
             player.update(dt, &annAtk, &andAtk, &anuAtk, &anHit, &anDie, input1, input2);
@@ -248,28 +261,32 @@ int main()
                 result = 1; //won
             }
 
-            else if (player.getSpeed() == STATE_DYING)
+            else if (player.getState() == STATE_DYING)
             {
                 gamestate = 3;
                 result = 0; //lost
             }
+
+            wasEnterPressed = Keyboard::isKeyPressed(Keyboard::Return);
         }
-        if (gamestate == 3)
+        if (gamestate == 3 && focus)
         {
             Input input1 = INPUT_NONE;
             Input input2 = INPUT_NONE;
 
-            if (Keyboard::isKeyPressed(Keyboard::W))
+            int deadZone = 40;
+
+            if (Keyboard::isKeyPressed(Keyboard::W) || Joystick::getAxisPosition(0, Joystick::Y) < -deadZone)
                 input2 = INPUT_W;
-            if (Keyboard::isKeyPressed(Keyboard::A))
-                input2 = INPUT_A;
-            if (Keyboard::isKeyPressed(Keyboard::S))
+            if (Keyboard::isKeyPressed(Keyboard::S) || Joystick::getAxisPosition(0, Joystick::Y) > deadZone)
                 input2 = INPUT_S;
-            if (Keyboard::isKeyPressed(Keyboard::D))
+            if (Keyboard::isKeyPressed(Keyboard::A) || Joystick::getAxisPosition(0, Joystick::X) < -deadZone)
+                input2 = INPUT_A;
+            if (Keyboard::isKeyPressed(Keyboard::D) || Joystick::getAxisPosition(0, Joystick::X) > deadZone)
                 input2 = INPUT_D;
-            if (Keyboard::isKeyPressed(Keyboard::Return))
+            if (Keyboard::isKeyPressed(Keyboard::Return) || Joystick::isButtonPressed(0, 0))
                 input1 = INPUT_ENTER;
-            if (Keyboard::isKeyPressed(Keyboard::Space))
+            if (Keyboard::isKeyPressed(Keyboard::Space) || Joystick::isButtonPressed(0, 1))
                 input1 = INPUT_SPACE;
 
             player.update(dt, &annAtk, &andAtk, &anuAtk, &anHit, &anDie, input1, input2);
@@ -278,6 +295,7 @@ int main()
             if (!(Keyboard::isKeyPressed(Keyboard::Y)) && wasYPressed)
             {
                 gamestate = 0;
+                wasEnterPressed = Keyboard::isKeyPressed(Keyboard::Return);
             }
             if (!(Keyboard::isKeyPressed(Keyboard::N)) && wasNPressed)
             {
@@ -296,8 +314,8 @@ int main()
 
         if (gamestate == 0)
         {
-            drawString(&window, "enter the name of your fighter:", Vector2f(0, 40), &font);
-            drawString(&window, enteredText, Vector2f(40, 100), &font);
+            drawString(&window, "enter the name, which will determine &the stats, of your fighter:", Vector2f(0, 40), &font);
+            drawString(&window, enteredText, Vector2f(40, 156), &font);
             drawString(&window, "press enter to get started.", Vector2f(500, 794), &font);
         }
         if (gamestate == 1)
@@ -321,6 +339,7 @@ int main()
             else
                 drawString(&window, "Fighter: The very long name you entered...", Vector2f(0, 40), &font);
             drawString(&window, "press enter to start", Vector2f(25, 736), &font);
+            drawString(&window, "press backspace to enter a new name", Vector2f(25, 794), &font);
         }
         if (gamestate == 2)
         {
@@ -361,19 +380,24 @@ int main()
         // |_/ |__ |_) |__| \_] \_]  | |  \| \_]
         //drawFloat(&window, gamestate, Vector2f(10, 260), &font);
 
-        //drawFloat(&window, enemy.getHealth(), Vector2f(10, 190), &font);
+        //drawFloat(&window, randint(0, 2), Vector2f(10, 190), &font);
         //drawFloat(&window, enemy.getMaxHealth(), Vector2f(10, 260), &font);
         //drawFloat(&window, (float)enemy.getHealth() / enemy.getMaxHealth() * 530, Vector2f(10, 310), &font);
         //(&window, player.getState(), Vector2f(0, 200), &font);
 
-        //CircleShape circ(5);
-        //circ.setPosition(enemy.getPosition());
-        //circ.setFillColor(Color::Red);
+        CircleShape circ(5);
+        circ.setPosition(enemy.getPosition());
+        circ.setFillColor(Color::Red);
         //window.draw(circ);
 
-        //RectangleShape rect(Vector2f(player.getHitbox().width, player.getHitbox().height));
-        //rect.setFillColor(Color(255, 200, 0, 65));
-        //rect.setPosition(Vector2f(player.getHitbox().left, player.getHitbox().top));
+        CircleShape circ2(5);
+        circ2.setPosition(player.getPosition());
+        circ2.setFillColor(Color::Blue);
+        //window.draw(circ2);
+
+        RectangleShape rect(Vector2f(player.getHitbox().width, player.getHitbox().height));
+        rect.setFillColor(Color(255, 200, 0, 65));
+        rect.setPosition(Vector2f(player.getHitbox().left, player.getHitbox().top));
         //window.draw(rect);
 
         window.display();
@@ -459,10 +483,95 @@ void drawFloat(RenderWindow* window, float num, Vector2f position, Texture* font
 
 void AI(Character* enemy, Character* player, Time dt, Animation* annAtkEn, Animation* andAtkEn, Animation* anuAtkEn, Animation* anHitEn, Animation* anDieEn)
 {
-    Input input1 = INPUT_NONE; //WASD
-    Input input2 = INPUT_NONE; //Space Enter
+    Input input1 = INPUT_NONE; //space / enter
+    Input input2 = INPUT_NONE; //WASD
+
+    //easier acces / shorter code
+    Vector2f playerPos = player->getPosition();
+    Vector2f AIPos = enemy->getPosition();
+    float deltaY = abs(playerPos.y - AIPos.y);
+    float deltaX = abs(playerPos.x - AIPos.x);
+    Direction playerPlace = playerPos.x > AIPos.x ? RIGHT : LEFT;
+    Direction AIFaces = enemy->getFlip() == true ? LEFT : RIGHT;
+    State playerState = player->getState();
+    State enemyState = enemy->getState();
 
     //[insert AI here]
+
+    //always perform these:
+    //always look at player
+    if (playerPlace == RIGHT && AIFaces == LEFT)
+    {
+        input2 = INPUT_D;
+    }
+    if (playerPlace == LEFT && AIFaces == RIGHT)
+    {
+        input2 = INPUT_A;
+    }
+    //walk to player
+    if (deltaX > 650)
+    {
+        if (playerPlace == RIGHT)
+            input2 = INPUT_D;
+        else if (playerPlace == LEFT)
+            input2 = INPUT_A;
+    }
+    //player in enemy
+    /*if (deltaX < 100 && deltaY < 100)
+    {
+        input1 = INPUT_SPACE;
+    }*/
+
+    //situational actions
+    //player is above enemy, enemy is on ground
+    if (deltaY > deltaX && AIPos.y > 600)
+    {
+        input1 = INPUT_ENTER;
+        input2 = INPUT_W;
+    }
+    //react to player side attack in range
+    else if (playerState == STATE_NEUTRALATTACK && deltaX <= 500)
+    {
+        if (playerPlace == LEFT)
+            input2 = INPUT_D;
+        else if (playerPlace == RIGHT)
+            input2 = INPUT_A;
+        input1 = INPUT_SPACE;
+    }
+    //defend from incoming player
+    else if (deltaX < 350 && deltaX > 128 && (playerState == STATE_WALKING_LEFT || playerState == STATE_WALKING_RIGHT))
+    {
+        input1 = INPUT_ENTER;
+    }
+    //flee for down attack
+    else if (playerState == STATE_DOWNATTACK)
+    {
+        if (enemy->getJump() > 20)
+            input1 = INPUT_SPACE;
+        else if (enemy->getJump() <= 20)
+        {
+            if (playerPlace == RIGHT)
+                input2 = INPUT_D;
+            else if (playerPlace == LEFT)
+                input2 = INPUT_A;
+        }
+    }
+    //get out if to close
+    else if (deltaX > 0 && deltaX < 128)
+    {
+        input1 = INPUT_SPACE;
+        if (playerPlace == RIGHT)
+            input2 = INPUT_A;
+        else if (playerPlace == LEFT)
+            input2 = INPUT_D;
+    }
+    else if (playerState == STATE_UPATTACK)
+    {
+        if (playerPlace == RIGHT)
+            input2 = INPUT_A;
+        else if (playerPlace == LEFT)
+            input2 = INPUT_D;
+    }
 
     enemy->update(dt, annAtkEn, andAtkEn, anuAtkEn, anHitEn, anDieEn, input1, input2);
 }

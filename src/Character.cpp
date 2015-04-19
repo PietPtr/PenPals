@@ -21,6 +21,7 @@ Character::Character(std::string name, Texture* _weaponTexture, Texture* dyingTe
     {
         seed += (int)(name[i]);
     }
+    std::cout << "seed:" << seed << "\n";
 
     health = randint(75, 125, seed);
     maxHealth = health;
@@ -163,11 +164,11 @@ void Character::draw(RenderWindow* window, Time dt, Animation* anRun, Animation*
         anDie->setPosition(position);
         anDie->play(window, dt, flip);
         if (anDie->getCurrentFrame() == 0)
-            drawWeapon(window, Vector2f(102, -59), Vector2f(0, 0), 340.0f);
+            drawWeapon(window, Vector2f(102, -59), Vector2f(102, 59), 340.0f);
         else if (anDie->getCurrentFrame() == 1)
-            drawWeapon(window, Vector2f(216, 164), Vector2f(0, 0), 0.0f);
+            drawWeapon(window, Vector2f(216, 164), Vector2f(216, -164), 0.0f);
         else if (anDie->getCurrentFrame() == 2)
-            drawWeapon(window, Vector2f(380, 180), Vector2f(0, 0), 0.0f);
+            drawWeapon(window, Vector2f(380, 180), Vector2f(380, -180), 0.0f);
         break;
     /*case(STATE_DEAD):
         Sprite dead;
@@ -184,12 +185,18 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
 //input1 for space and return
 //input2 for WASD
 {
+
     totalTime += dt;
 
     switch(state)
     {
     case(STATE_STANDING):
         graphicState = STATE_STANDING;
+
+        if (input == INPUT_ENTER && input2 == INPUT_W)
+            state = STATE_UPATTACK;
+        else if (input == INPUT_ENTER)
+            state = STATE_NEUTRALATTACK;
 
         if (input2 == INPUT_A)
         {
@@ -211,12 +218,6 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
             state = STATE_JUMPING;
             graphicState = STATE_JUMPING;
         }
-
-        if (input == INPUT_ENTER)
-            state = STATE_NEUTRALATTACK;
-        if (input == INPUT_ENTER && input2 == INPUT_W)
-            state = STATE_UPATTACK;
-
         hitbox = IntRect(-100, -100, 0, 0);
 
         velocity.x = 0;
@@ -248,7 +249,7 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
     case(STATE_CROUCHING):
         if (input2 != INPUT_S)
             state = STATE_STANDING;
-        if (input = INPUT_ENTER)
+        if (input == INPUT_ENTER && input2 == INPUT_S)
             state = STATE_DOWNATTACK;
         break;
     case(STATE_JUMPING):
@@ -361,6 +362,12 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
 
     position.x += velocity.x * speed * dt.asSeconds();
     position.y += velocity.y * speed * dt.asSeconds();
+
+    int invisibleSpace = 200;
+    if (position.x < -invisibleSpace)
+        position.x = 1600 + invisibleSpace;
+    else if (position.x > 1600 + invisibleSpace)
+        position.x = -invisibleSpace;
 
     //std::cout << state << "\n";
 }
