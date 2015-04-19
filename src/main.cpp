@@ -197,11 +197,11 @@ int main()
         {
             if (!(Keyboard::isKeyPressed(Keyboard::Return)) && wasEnterPressed)
             {
+                enemy = Character(randint(0, 9) + "number" + randint(0, 9) + randint(0, 9) + randint(0, 9), &weaponTexture, &dyingEnemyTexture, Vector2f(1000, 500));;
                 player = Character(enteredText, &weaponTexture, &dyingTexture, Vector2f(250, 500));
                 std::cout << enteredText << "\n";
                 gamestate = 1;
             }
-
 
             wasEnterPressed = Keyboard::isKeyPressed(Keyboard::Return);
         }
@@ -312,6 +312,11 @@ int main()
             window.draw(healthEnemyEmpty);
             window.draw(healthEnemyFull);
 
+            if (result == 0)
+                drawString(&window, "You lost...", Vector2f(525, 156), &font);
+            else if (result == 1)
+                drawString(&window, "You won!", Vector2f(525, 156), &font);
+
             drawString(&window, "Y: play again.", Vector2f(525, 214), &font);
             drawString(&window, "N: quit game.", Vector2f(525, 272), &font);
         }
@@ -333,7 +338,7 @@ int main()
         rect.setFillColor(Color(255, 200, 0, 65));
         rect.setPosition(Vector2f(player.getHitbox().left, player.getHitbox().top));
         window.draw(rect);
-        */
+        //*/
 
         window.display();
 
@@ -390,6 +395,8 @@ void drawString(RenderWindow* window, std::string text, Vector2f position, Textu
             charSprite.setTextureRect(IntRect(38 * 40, 0, 40, 69));
         else if (num == 37)
             charSprite.setTextureRect(IntRect(40 * 40, 0, 40, 69));
+        else if (num == 33)
+            charSprite.setTextureRect(IntRect(41 * 40, 0, 40, 69));
         else if (num == 38)
         {
             charSprite.setTextureRect(IntRect(39 * 40, 0, 40, 69));
