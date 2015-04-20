@@ -31,9 +31,7 @@ Character::Character(std::string name, Texture* _weaponTexture, Texture* dyingTe
             seed *= value;
         else
             seed += value;
-        std::cout << "char: " << value << "\n";
     }
-    std::cout << "seed:" << seed << "\n---------------------------------------------\n";
 
     health = randint(75, 125, seed);
     maxHealth = health;
@@ -380,82 +378,8 @@ void Character::update(Time dt, Animation* annAtk, Animation* andAtk, Animation*
         position.x = 1600 + invisibleSpace;
     else if (position.x > 1600 + invisibleSpace)
         position.x = -invisibleSpace;
-
-    //std::cout << state << "\n";
 }
 
-void Character::AIupdate(Time dt, Animation* annAtkEn, Animation* andAtkEn, Animation* anuAtkEn, Animation* anHitEn, Animation* anDieEn)
-{
-    totalTime += dt;
-
-    switch(state)
-    {
-    case(STATE_STANDING):
-        graphicState = STATE_STANDING;
-        break;
-    case(STATE_WALKING_LEFT):
-        break;
-    case(STATE_WALKING_RIGHT):
-        break;
-    case(STATE_CROUCHING):
-        break;
-    case(STATE_JUMPING):
-        break;
-    case(STATE_FALLING):
-        break;
-    case(STATE_NEUTRALATTACK):
-        velocity.x = 0;
-        graphicState = STATE_NEUTRALATTACK;
-        if (annAtkEn->isAnimationOver()) //animation ends
-            state = STATE_STANDING;
-        if (annAtkEn->getCurrentFrame() == 0 && flip == false)
-            hitbox = IntRect(position.x + 90, position.y - 65, 300, 150);
-        else if (annAtkEn->getCurrentFrame() == 1 && flip == false)
-            hitbox = IntRect(position.x + 125, position.y - 105, 300, 150);
-        else if (annAtkEn->getCurrentFrame() == 2 && flip == false)
-            hitbox = IntRect(position.x + 171, position.y - 105, 300, 150);
-        else if (annAtkEn->getCurrentFrame() == 0 && flip == true)
-            hitbox = IntRect(position.x - 390, position.y - 65, 300, 150);
-        else if (annAtkEn->getCurrentFrame() == 1 && flip == true)
-            hitbox = IntRect(position.x - 425, position.y - 105, 300, 150);
-        else if (annAtkEn->getCurrentFrame() == 2 && flip == true)
-            hitbox = IntRect(position.x - 471, position.y - 105, 300, 150);
-        break;
-    case(STATE_UPATTACK):
-        break;
-    case(STATE_DOWNATTACK):
-        break;
-    case(STATE_HIT):
-        velocity.x = 0;
-        graphicState = STATE_HIT;
-        if (anHitEn->isAnimationOver())
-        {
-            if (health <= 0)
-                state = STATE_DYING;
-            else if (health > 0)
-                state = STATE_STANDING;
-        }
-        break;
-    case(STATE_DYING):
-        graphicState = STATE_DYING;
-        break;
-    }
-
-
-
-    if (position.y < FLOOR)
-        velocity.y += 1; //gravity
-    else if (position.y > FLOOR)
-    {
-        position.y = FLOOR;
-        velocity.y = 0;
-    }
-
-    position.x += velocity.x * speed * dt.asSeconds();
-    position.y += velocity.y * speed * dt.asSeconds();
-
-    //AI
-}
 
 bool Character::checkHit(IntRect hitbox, int enemyStrength) //<- this is the enemys hitbox
 {

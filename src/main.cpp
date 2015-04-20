@@ -1,4 +1,5 @@
 //Presenting... "Pen Pals"!
+//perfect fighter: azzzz4kkkk
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <string>
@@ -181,7 +182,7 @@ int main()
                 {
                     if (event.text.unicode == '\b' && enteredText.size() > 0)
                         enteredText.erase(enteredText.size() - 1, 1);
-                    else if (event.text.unicode < 128 && enteredText.length() <= 417)
+                    else if (event.text.unicode > 31 && event.text.unicode < 128 && enteredText.length() <= 417)
                     {
                         enteredText += static_cast<char>(event.text.unicode);
                     }
@@ -457,6 +458,8 @@ void drawString(RenderWindow* window, std::string text, Vector2f position, Textu
             charSprite.setTextureRect(IntRect(40 * 40, 0, 40, 69));
         else if (num == 33)
             charSprite.setTextureRect(IntRect(41 * 40, 0, 40, 69));
+        else if (num == 32)
+            charSprite.setTextureRect(IntRect(39 * 40, 0, 40, 69));
         else if (num == 38)
         {
             charSprite.setTextureRect(IntRect(39 * 40, 0, 40, 69));
@@ -464,7 +467,7 @@ void drawString(RenderWindow* window, std::string text, Vector2f position, Textu
             drawX = position.x;
         }
         else
-            charSprite.setTextureRect(IntRect(39 * 40, 0, 40, 69));
+            charSprite.setTextureRect(IntRect(42 * 40, 0, 40, 69));
 
         charSprite.setPosition(Vector2f(drawX, drawY));
         window->draw(charSprite);
@@ -516,11 +519,6 @@ void AI(Character* enemy, Character* player, Time dt, Animation* annAtkEn, Anima
         else if (playerPlace == LEFT)
             input2 = INPUT_A;
     }
-    //player in enemy
-    /*if (deltaX < 100 && deltaY < 100)
-    {
-        input1 = INPUT_SPACE;
-    }*/
 
     //situational actions
     //player is above enemy, enemy is on ground
@@ -542,6 +540,7 @@ void AI(Character* enemy, Character* player, Time dt, Animation* annAtkEn, Anima
     else if (deltaX < 350 && deltaX > 128 && (playerState == STATE_WALKING_LEFT || playerState == STATE_WALKING_RIGHT))
     {
         input1 = INPUT_ENTER;
+        input2 = INPUT_S;
     }
     //flee for down attack
     else if (playerState == STATE_DOWNATTACK)
