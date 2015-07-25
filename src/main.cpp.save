@@ -206,7 +206,7 @@ int main()
                     if (enteredText.length() % 38 == 0 && enteredText.length() != 0 && event.text.unicode != '\b')
                         enteredText += '&';
                     //the font doesn't support uppercase, remove it from the name so it can't influence the character generation
-                    std::transform(enteredText.begin(), enteredText.end(), enteredText.begin(), ::tolower);
+                    std::tolower(enteredText)
                 }
             }
             if (gamestate == 0)
